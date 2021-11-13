@@ -1,13 +1,13 @@
-version: "3.7"
+version: "3"
 
 services:
   db:
-    image: postgres:13.4-alpine
+    image: postgres:13.5-alpine
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=ruhuna_user
+      - POSTGRES_PASSWORD=ruhuna_pw
       - POSTGRES_DB=ruhuna
       - TZ=Asia/Tokyo
     volumes:
