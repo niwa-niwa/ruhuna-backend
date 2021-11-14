@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { FirebaseAdmin } from "../../lib/FirebaseAdmin";
-import { PrismaClient } from ".prisma/client";
+import { Prisma, PrismaClient, User } from ".prisma/client";
+import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
 export const auth = async (req: Request, res: Response) => {
   const idToken: string | undefined = req.header("Authorization");
@@ -16,39 +17,77 @@ export const auth = async (req: Request, res: Response) => {
   }
 };
 
-// todo : implement what get a User by id
 export const getUser = async (req: Request, res: Response) => {
-  const id: string = "1";
+  const id: string = req.params.userId;
+
   const prisma: PrismaClient = new PrismaClient();
-  const user: object | null = await prisma.user.findUnique({ where: { id } });
+  const user: User | null = await prisma.user.findUnique({ where: { id } });
 
-  if (!user) {
-    res.status(404).json({ message: "該当ユーザーはいまん" });
+  if (user) {
+    res.status(202).json({ user });
+  } else {
+    res.status(404).json({ message: "該当ユーザーはいません" });
   }
-
-  res.status(202).json({ user });
 };
 
 export const getUsers = async (req: Request, res: Response) => {
   const prisma: PrismaClient = new PrismaClient();
-  const allUsers = await prisma.user.findMany();
-  res.status(200).json({ users: allUsers });
+  const users: User[] = await prisma.user.findMany();
+  res.status(200).json({ users: users });
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  // todo : implement what create a user
-  // todo : response a token that firebase auth generated
-  res.status(200).json({ message: "create a user" });
+  const firebaseToken: string = req.body.firebaseToken;
+
+  try {
+    const currentUser: DecodedIdToken =
+      await FirebaseAdmin.auth().verifyIdToken(firebaseToken);
+
+    const data: Prisma.UserCreateInput = {
+      firebaseId: currentUser.uid,
+      displayName: currentUser.name,
+    };
+
+    const prisma: PrismaClient = new PrismaClient();
+    const createdUser: User = await prisma.user.create({ data });
+
+    res.status(200).json({ user: createdUser });
+  } catch (e) {
+    console.error(e);
+    res.status(404).json({ message: "ユーザー作成に失敗しました" });
+  }
 };
 
 export const editUser = async (req: Request, res: Response) => {
-  // todo :implement what edit a user by user id
-  res.status(200).json({ message: "edit a user" });
+  const id: string = req.params.userId;
+  const data: Prisma.UserUpdateInput = req.body;
+
+  const prisma: PrismaClient = new PrismaClient();
+  const editedUser: User = await prisma.user.update({
+    where: { id },
+    data,
+  });
+
+  if (editedUser) {
+    res.status(200).json({ user: editedUser });
+  } else {
+    res.status(404).json({ message: "該当ユーザーはいません" });
+  }
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-  // todo : implement what delete a user by user id
-  res.status(200).json({ message: "delete a user" });
+  const id: string = req.params.userId;
+
+  const prisma: PrismaClient = new PrismaClient();
+  const deletedUser: User = await prisma.user.delete({
+    where: { id },
+  });
+
+  if (deletedUser) {
+    res.status(200).json({ user: deletedUser });
+  } else {
+    res.status(404).json({ message: "該当ユーザーはいません" });
+  }
 };
 
 export default {
