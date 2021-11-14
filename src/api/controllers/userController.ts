@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { FirebaseAdmin } from "../lib/FirebaseAdmin";
+import { FirebaseAdmin } from "../../lib/FirebaseAdmin";
 
 export const index = async (req: Request, res: Response) => {
   res.writeHead(200, { "Content-Type": "text/plain" });

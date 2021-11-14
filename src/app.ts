@@ -1,10 +1,10 @@
 import "dotenv/config";
 import express, { Express } from "express";
-import api from "./api";
+import { router } from "./router";
 
 const app: Express = express();
 
-app.use("/api", api);
+app.use(router);
 
 const PORT: string = process.env.PORT || "3001";
 
