@@ -15,7 +15,40 @@ model User {
   firebaseId  String    @unique
   isAdmin     Boolean   @default(false)
   isActive    Boolean   @default(true)
+  isAnonymous Boolean   @default(true)
   displayName String    @unique @db.VarChar(64)
+  messages    Message[]
+  mayors      Village[] @relation(name:"mayor", references:[id])
+  villages    Village[] @relation(references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+// model Mayor {
+//   id          String    @id @unique @default(uuid())
+//   users       User[]    @relation(references: [id])
+//   villages    Village[] @relation(references: [id])
+//   createdAt   DateTime  @default(now())
+//   updatedAt   DateTime? @updatedAt
+// }
+
+model Village {
+  id          String    @id @unique @default(uuid())
+  description String    @db.VarChar(255)
+  users       User[]    @relation(references: [id])
+  mayors      User[]    @relation(name:"mayor", references:[id])
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+model Message {
+  id          String    @id @unique @default(uuid())
+  content     String
+  villageId   String
+  userId      String
+  village     Village   @relation(fields: [villageId], references:[id])
+  user        User      @relation(fields: [userId], references:[id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
 }
