@@ -45,7 +45,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     const data: Prisma.UserCreateInput = {
       firebaseId: currentUser.uid,
-      displayName: currentUser.name,
+      username: currentUser.name,
     };
 
     const prisma: PrismaClient = new PrismaClient();
