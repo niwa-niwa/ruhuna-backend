@@ -3,6 +3,11 @@ import { FirebaseAdmin } from "../../lib/FirebaseAdmin";
 import { Prisma, PrismaClient, User } from ".prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
+// TODO delete the function after implemented test cases for users
+export const test = async (req: Request, res: Response) => {
+  res.status(200).json("auth api working!");
+};
+
 export const auth = async (req: Request, res: Response) => {
   const idToken: string | undefined = req.header("Authorization");
 
@@ -91,6 +96,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 export default {
+  test, // TODO delete the function after implemented test cases for users
   auth,
   getUsers,
   getUser,
