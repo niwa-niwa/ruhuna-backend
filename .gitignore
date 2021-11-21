@@ -1,5 +1,9 @@
+*.ignore
 *.todo
 ruhuna-dev-firebase-adminsdk-*.json
+*.env.*
+
+!.env.sample
 
 # Logs
 logs
