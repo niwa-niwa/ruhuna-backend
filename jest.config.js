@@ -11,6 +11,6 @@ module.exports = {
       tsconfig: "tsconfig.json",
     },
   },
-  coveragePathIgnorePatterns: ["/node_modules/"],
+  testPathIgnorePatterns: ["/node_modules/", "/__tests__/data/"],
   modulePaths: ["/__tests__/", "/src/"],
 };
