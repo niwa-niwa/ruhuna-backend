@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { FirebaseAdmin } from "../../lib/FirebaseAdmin";
+import { FirebaseAuth } from "../../lib/FirebaseAdmin";
 import { Prisma, PrismaClient, User } from ".prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
@@ -12,7 +12,7 @@ export const auth = async (req: Request, res: Response) => {
   const idToken: string | undefined = req.header("Authorization");
 
   if (idToken) {
-    const currentUser: object = await FirebaseAdmin.auth().verifyIdToken(
+    const currentUser: object = await FirebaseAuth.verifyIdToken(
       idToken.replace("Bearer ", "")
     );
     res.json({ currentUser });
@@ -45,8 +45,9 @@ export const createUser = async (req: Request, res: Response) => {
   const firebaseToken: string = req.body.firebaseToken;
 
   try {
-    const currentUser: DecodedIdToken =
-      await FirebaseAdmin.auth().verifyIdToken(firebaseToken);
+    const currentUser: DecodedIdToken = await FirebaseAuth.verifyIdToken(
+      firebaseToken
+    );
 
     const data: Prisma.UserCreateInput = {
       firebaseId: currentUser.uid,
