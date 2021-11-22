@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { FirebaseAuth } from "../../lib/FirebaseAdmin";
+import { verifyToken } from "../../lib/FirebaseAdmin";
 import { Prisma, PrismaClient, User } from ".prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
+import { ErrorObj } from "types/error";
 
 // TODO delete the function after implemented test cases for users
 export const test = async (req: Request, res: Response) => {
@@ -11,15 +12,21 @@ export const test = async (req: Request, res: Response) => {
 export const auth = async (req: Request, res: Response) => {
   const idToken: string | undefined = req.header("Authorization");
 
-  if (idToken) {
-    const currentUser: object = await FirebaseAuth.verifyIdToken(
-      idToken.replace("Bearer ", "")
-    );
-    res.json({ currentUser });
-  } else {
-    res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("auth api working!");
+  if (!idToken) {
+    res.status(400).json({ message: "Headers has not token" });
+    return;
   }
+
+  const currentUser: DecodedIdToken | ErrorObj = await verifyToken(
+    idToken.replace("Bearer ", "")
+  );
+
+  if ("error" in currentUser) {
+    res.status(currentUser.status).json(currentUser);
+    return;
+  }
+
+  res.json({ currentUser });
 };
 
 export const getUser = async (req: Request, res: Response) => {
@@ -45,19 +52,26 @@ export const createUser = async (req: Request, res: Response) => {
   const firebaseToken: string = req.body.firebaseToken;
 
   try {
-    const currentUser: DecodedIdToken = await FirebaseAuth.verifyIdToken(
+    const currentUser: DecodedIdToken | ErrorObj = await verifyToken(
       firebaseToken
     );
 
-    const data: Prisma.UserCreateInput = {
-      firebaseId: currentUser.uid,
-      username: currentUser.name,
-    };
+    if ("error" in currentUser) {
+      res.status(currentUser.status).json(currentUser);
+      return;
+    }
 
-    const prisma: PrismaClient = new PrismaClient();
-    const createdUser: User = await prisma.user.create({ data });
+    if ("uid" in currentUser) {
+      const data: Prisma.UserCreateInput = {
+        firebaseId: currentUser.uid,
+        username: currentUser.name,
+      };
 
-    res.status(200).json({ user: createdUser });
+      const prisma: PrismaClient = new PrismaClient();
+      const createdUser: User = await prisma.user.create({ data });
+
+      res.status(200).json({ user: createdUser });
+    }
   } catch (e) {
     console.error(e);
     res.status(404).json({ message: "ユーザー作成に失敗しました" });
