@@ -31,7 +31,7 @@ export const getUser = async (req: Request, res: Response) => {
   const user: User | null = await prisma.user.findUnique({ where: { id } });
 
   if (user) {
-    res.status(202).json({ user });
+    res.status(200).json({ user });
   } else {
     res.status(404).json({ message: "該当ユーザーはいません" });
   }

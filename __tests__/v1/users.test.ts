@@ -20,7 +20,16 @@ afterAll(async () => {
 });
 
 jest.mock("../../src/lib/FirebaseAdmin", () => ({
-  verifyToken: (token: any) => ({ firebase_user }),
+  verifyToken: (token: string) => {
+    if (!token) {
+      return {
+        error: true,
+        status: 400,
+        message: "ID token has invalid signature",
+      };
+    }
+    return firebase_user;
+  },
 }));
 
 describe("Test the root path", () => {
@@ -64,5 +73,80 @@ describe("/api/v1/users/ TEST : getUsers function ", () => {
     expect(body.users[0]).toHaveProperty("updatedAt");
     expect(body.users[0]).not.toHaveProperty("uid");
     expect(body.users[0]).not.toHaveProperty("password");
+  });
+});
+
+describe("/api/v1/users/:id TEST : getUser by id function ", () => {
+  test("http status should be 200", async () => {
+    const res = await request(app)
+      .get(PREFIX_USERS)
+      .set("Authorization", "Bearer 1234567890");
+    const user = res.body.users[0];
+
+    const { status } = await request(app)
+      .get(PREFIX_USERS + "/" + user.id)
+      .set("Authorization", "Bearer 1234567890");
+
+    expect(status).toBe(200);
+  });
+
+  test("getUser has properties", async () => {
+    const res = await request(app)
+      .get(PREFIX_USERS)
+      .set("Authorization", "Bearer 1234567890");
+    const user = res.body.users[0];
+
+    const { body } = await request(app)
+      .get(PREFIX_USERS + "/" + user.id)
+      .set("Authorization", "Bearer 1234567890");
+
+    expect(body.user).toHaveProperty("id");
+    expect(body.user).toHaveProperty("firebaseId");
+    expect(body.user).toHaveProperty("isAdmin");
+    expect(body.user).toHaveProperty("isActive");
+    expect(body.user).toHaveProperty("isAnonymous");
+    expect(body.user).toHaveProperty("username");
+    expect(body.user).toHaveProperty("createdAt");
+    expect(body.user).toHaveProperty("updatedAt");
+    expect(body.user).not.toHaveProperty("uid");
+    expect(body.user).not.toHaveProperty("password");
+  });
+
+  test("getUser has values", async () => {
+    const res = await request(app)
+      .get(PREFIX_USERS)
+      .set("Authorization", "Bearer 1234567890");
+    const user = res.body.users[0];
+
+    const { status, body } = await request(app)
+      .get(PREFIX_USERS + "/" + user.id)
+      .set("Authorization", "Bearer 1234567890");
+
+    expect(status).toBe(200);
+    expect(user).toMatchObject(body.user);
+    expect(res.body.users[1]).not.toMatchObject(body.user);
+  });
+});
+
+describe("/api/v1/users/create TEST : createUser function", () => {
+  test("http status should be 200 and value", async () => {
+    const { status, body } = await request(app)
+      .post(PREFIX_USERS + "/create")
+      .send({ firebaseToken: "1234567890" });
+
+    expect(status).toBe(200);
+    expect(body.user.username).toEqual(firebase_user.name);
+    expect(body.user.firebaseId).toEqual(firebase_user.uid);
+    expect(body.user).toHaveProperty("id");
+    expect(body.user).toHaveProperty("isAdmin");
+    expect(body.user).toHaveProperty("isActive");
+    expect(body.user).toHaveProperty("isAnonymous");
+    expect(body.user).not.toHaveProperty("password");
+  });
+
+  test("should receive error", async () => {
+    const { status, body } = await request(app).post(PREFIX_USERS + "/create");
+
+    expect(status).toBe(400);
   });
 });
