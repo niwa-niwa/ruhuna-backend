@@ -3,7 +3,6 @@ import userController from "../controllers/userController";
 
 const v1: Router = express.Router();
 
-v1.get("/", userController.test); // TODO delete the function after implemented test cases for users
 v1.post("/auth", userController.auth);
 
 v1.use(
