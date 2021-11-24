@@ -23,9 +23,10 @@ jest.mock("../../src/lib/FirebaseAdmin", () => ({
   verifyToken: (token: string) => {
     if (!token) {
       return {
-        error: true,
-        status: 400,
-        message: "ID token has invalid signature",
+        errorObj: {
+          errorCode: 400,
+          errorMessage: "ID token has invalid signature",
+        },
       };
     }
     return firebase_user;
@@ -142,11 +143,16 @@ describe("/api/v1/users/create TEST : createUser function", () => {
     expect(body.user).toHaveProperty("isActive");
     expect(body.user).toHaveProperty("isAnonymous");
     expect(body.user).not.toHaveProperty("password");
+    expect(body.user).not.toHaveProperty("errorObj");
   });
 
   test("should receive error", async () => {
     const { status, body } = await request(app).post(PREFIX_USERS + "/create");
 
     expect(status).toBe(400);
+    expect(body.user).toHaveProperty("errorObj");
+    expect(body.user.errorObj).toHaveProperty("errorCode");
+    expect(body.user.errorObj).toHaveProperty("errorMessage");
+    expect(body.user).not.toHaveProperty("id");
   });
 });

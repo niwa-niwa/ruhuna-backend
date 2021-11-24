@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { verifyToken } from "../../lib/FirebaseAdmin";
 import { Prisma, PrismaClient, User } from "@prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
-import { ErrorObj } from "types/error";
+import { ErrorObj } from "types/ErrorObj";
 
 export const auth = async (req: Request, res: Response) => {
   const idToken: string | undefined = req.header("Authorization");
@@ -16,8 +16,8 @@ export const auth = async (req: Request, res: Response) => {
     idToken.replace("Bearer ", "")
   );
 
-  if ("error" in currentUser) {
-    res.status(currentUser.status).json(currentUser);
+  if ("errorObj" in currentUser) {
+    res.status(currentUser.errorObj.errorCode).json(currentUser);
     return;
   }
 
@@ -51,8 +51,8 @@ export const createUser = async (req: Request, res: Response) => {
       firebaseToken
     );
 
-    if ("error" in currentUser) {
-      res.status(currentUser.status).json(currentUser);
+    if ("errorObj" in currentUser) {
+      res.status(currentUser.errorObj.errorCode).json({ user: currentUser });
       return;
     }
 
