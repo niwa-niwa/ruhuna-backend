@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { prismaClient } from "./../src/lib/Prisma";
 import { users } from "./seeds/users";
 
-const prisma = new PrismaClient();
-
 async function main() {
-  await prisma.user.createMany({ data: users });
+  await prismaClient.user.createMany({ data: users });
 }
 
 main()
@@ -13,5 +11,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await prismaClient.$disconnect();
   });

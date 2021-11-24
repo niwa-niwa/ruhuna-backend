@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { prismaClient } from "./../../src/lib/Prisma";
 import request from "supertest";
 import app from "../../src/app";
 import { firebase_user } from "../data/testData";
@@ -7,17 +7,15 @@ import { users } from "../../Prisma/seeds/users";
 const PREFIX_USERS = "/api/v1/users";
 
 beforeAll(async () => {
-  const prisma = new PrismaClient();
-  await prisma.user.createMany({ data: users });
+  await prismaClient.user.createMany({ data: users });
 });
 
 afterAll(async () => {
-  const prisma = new PrismaClient();
-  const deleteUsers = prisma.user.deleteMany();
+  const deleteUsers = prismaClient.user.deleteMany();
 
-  await prisma.$transaction([deleteUsers]);
+  await prismaClient.$transaction([deleteUsers]);
 
-  await prisma.$disconnect();
+  await prismaClient.$disconnect();
 });
 
 jest.mock("../../src/lib/FirebaseAdmin", () => ({

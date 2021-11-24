@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { verifyToken } from "../../lib/FirebaseAdmin";
-import { Prisma, PrismaClient, User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
+import { prismaClient } from "../../lib/Prisma";
 import { ErrorObj } from "types/ErrorObj";
 
 export const auth = async (req: Request, res: Response) => {
@@ -27,8 +28,9 @@ export const auth = async (req: Request, res: Response) => {
 export const getUser = async (req: Request, res: Response) => {
   const id: string = req.params.userId;
 
-  const prisma: PrismaClient = new PrismaClient();
-  const user: User | null = await prisma.user.findUnique({ where: { id } });
+  const user: User | null = await prismaClient.user.findUnique({
+    where: { id },
+  });
 
   if (user) {
     res.status(200).json({ user });
@@ -38,8 +40,7 @@ export const getUser = async (req: Request, res: Response) => {
 };
 
 export const getUsers = async (req: Request, res: Response) => {
-  const prisma: PrismaClient = new PrismaClient();
-  const users: User[] = await prisma.user.findMany();
+  const users: User[] = await prismaClient.user.findMany();
   res.status(200).json({ users: users });
 };
 
@@ -62,8 +63,7 @@ export const createUser = async (req: Request, res: Response) => {
         username: currentUser.name,
       };
 
-      const prisma: PrismaClient = new PrismaClient();
-      const createdUser: User = await prisma.user.create({ data });
+      const createdUser: User = await prismaClient.user.create({ data });
 
       res.status(200).json({ user: createdUser });
     }
@@ -77,8 +77,7 @@ export const editUser = async (req: Request, res: Response) => {
   const id: string = req.params.userId;
   const data: Prisma.UserUpdateInput = req.body;
 
-  const prisma: PrismaClient = new PrismaClient();
-  const editedUser: User = await prisma.user.update({
+  const editedUser: User = await prismaClient.user.update({
     where: { id },
     data,
   });
@@ -93,8 +92,7 @@ export const editUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
   const id: string = req.params.userId;
 
-  const prisma: PrismaClient = new PrismaClient();
-  const deletedUser: User = await prisma.user.delete({
+  const deletedUser: User = await prismaClient.user.delete({
     where: { id },
   });
 
