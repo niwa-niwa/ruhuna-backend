@@ -4,14 +4,15 @@ import app from "../../src/app";
 import { firebase_user } from "../data/testData";
 import { users } from "../../Prisma/seeds/users";
 
-const prisma = new PrismaClient();
 const PREFIX_USERS = "/api/v1/users";
 
 beforeAll(async () => {
+  const prisma = new PrismaClient();
   await prisma.user.createMany({ data: users });
 });
 
 afterAll(async () => {
+  const prisma = new PrismaClient();
   const deleteUsers = prisma.user.deleteMany();
 
   await prisma.$transaction([deleteUsers]);
@@ -154,5 +155,36 @@ describe("/api/v1/users/create TEST : createUser function", () => {
     expect(body.user.errorObj).toHaveProperty("errorCode");
     expect(body.user.errorObj).toHaveProperty("errorMessage");
     expect(body.user).not.toHaveProperty("id");
+  });
+});
+
+describe("/api/v1/users/edit/:userId : TEST editUser", () => {
+  test("edit user by edit_data successfully", async () => {
+    const res = await request(app)
+      .get(PREFIX_USERS)
+      .set("Authorization", "Bearer 1234567890");
+
+    const userId = res.body.users[0].id;
+
+    const edit_data = {
+      username: "hello world",
+      isAdmin: true,
+      isActive: false,
+      isAnonymous: true,
+    };
+
+    const { status, body } = await request(app)
+      .put(PREFIX_USERS + "/edit/" + userId)
+      .set("Authorization", "Bearer 1234567890")
+      .send({ ...edit_data });
+
+    expect(status).toBe(200);
+    expect(body.user.id).toEqual(userId);
+    expect(body.user.username).toEqual(edit_data.username);
+    expect(body.user.isAdmin).toEqual(edit_data.isAdmin);
+    expect(body.user.isActive).toEqual(edit_data.isActive);
+    expect(body.user.isAnonymous).toEqual(edit_data.isAnonymous);
+    expect(body.user).not.toHaveProperty("password");
+    expect(body.user).not.toHaveProperty("errorObj");
   });
 });
