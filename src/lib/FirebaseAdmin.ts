@@ -1,4 +1,7 @@
 import FirebaseAdmin from "firebase-admin";
+import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
+import { ErrorObj } from "types/ErrorObj";
+import { generateErrorObj } from "./generateErrorObj";
 
 const serviceAccount: object = Object.freeze({
   type: process.env.FIREBASE_TYPE,
@@ -18,3 +21,17 @@ FirebaseAdmin.initializeApp({
 });
 
 export { FirebaseAdmin };
+
+export const FirebaseAuth = FirebaseAdmin.auth();
+
+export async function verifyToken(
+  token: string
+): Promise<DecodedIdToken | ErrorObj> {
+  try {
+    const currentUser: DecodedIdToken = await FirebaseAuth.verifyIdToken(token);
+    return currentUser;
+  } catch (e) {
+    console.error(e);
+    return generateErrorObj(400, "ID token has invalid signature");
+  }
+}

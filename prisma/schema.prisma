@@ -15,7 +15,7 @@ model User {
   firebaseId  String    @unique
   isAdmin     Boolean   @default(false)
   isActive    Boolean   @default(true)
-  isAnonymous Boolean   @default(true)
+  isAnonymous Boolean   @default(false)
   username    String    @unique @db.VarChar(64)
   messages    Message[]
   villages    Village[] @relation(references: [id])
