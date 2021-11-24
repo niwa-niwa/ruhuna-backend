@@ -3,6 +3,7 @@ import request from "supertest";
 import app from "../../src/app";
 import { firebase_user } from "../data/testData";
 import { users } from "../../Prisma/seeds/users";
+import { generateErrorObj } from "../../src/lib/generateErrorObj";
 
 const PREFIX_USERS = "/api/v1/users";
 
@@ -21,12 +22,7 @@ afterAll(async () => {
 jest.mock("../../src/lib/FirebaseAdmin", () => ({
   verifyToken: (token: string) => {
     if (!token) {
-      return {
-        errorObj: {
-          errorCode: 400,
-          errorMessage: "ID token has invalid signature",
-        },
-      };
+      return generateErrorObj(400, "ID token has invalid signature");
     }
     return firebase_user;
   },
@@ -126,6 +122,18 @@ describe("/api/v1/users/:id TEST : getUser by id function ", () => {
     expect(user).toMatchObject(body.user);
     expect(res.body.users[1]).not.toMatchObject(body.user);
   });
+
+  test("it should receive error", async () => {
+    const { status, body } = await request(app)
+      .get(PREFIX_USERS + "/aaaaaaa")
+      .set("Authorization", "Bearer 1234567890");
+
+    expect(status).toBe(404);
+    expect(body.user).toHaveProperty("errorObj");
+    expect(body.user.errorObj.errorCode).toBe(404);
+    expect(body.user.errorObj).toHaveProperty("errorMessage");
+    expect(body.user).not.toHaveProperty("id");
+  });
 });
 
 describe("/api/v1/users/create TEST : createUser function", () => {
@@ -156,7 +164,7 @@ describe("/api/v1/users/create TEST : createUser function", () => {
   });
 });
 
-describe("/api/v1/users/edit/:userId : TEST editUser", () => {
+describe("/api/v1/users/edit/:userId TEST : editUser", () => {
   test("edit user by edit_data successfully", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
@@ -184,5 +192,61 @@ describe("/api/v1/users/edit/:userId : TEST editUser", () => {
     expect(body.user.isAnonymous).toEqual(edit_data.isAnonymous);
     expect(body.user).not.toHaveProperty("password");
     expect(body.user).not.toHaveProperty("errorObj");
+  });
+
+  test("should receive errorObj because the user not found", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const edit_data = {
+      username: "hello world",
+      isAdmin: true,
+      isActive: false,
+      isAnonymous: true,
+    };
+
+    const { status, body } = await request(app)
+      .put(PREFIX_USERS + "/edit/asdf")
+      .set("Authorization", "Bearer 1234567890")
+      .send({ ...edit_data });
+
+    expect(status).toBe(404);
+    expect(body.user.errorObj).toHaveProperty("errorCode");
+    expect(body.user.errorObj).toHaveProperty("errorMessage");
+    expect(body.user).not.toHaveProperty("id");
+  });
+});
+
+describe("/api/v1/users/delete/:userId TEST : deleteUser", () => {
+  test("it should receive error", async () => {
+    const { status, body } = await request(app)
+      .delete(PREFIX_USERS + "/delete/aaaaaa")
+      .set("Authorization", "Bearer 1234567890");
+
+    expect(status).toBe(404);
+    expect(body.user).toHaveProperty("errorObj");
+    expect(body.user.errorObj.errorCode).toBe(404);
+    expect(body.user.errorObj).toHaveProperty("errorMessage");
+    expect(body.user).not.toBe("id");
+  });
+
+  test("the user by userId should be deleted", async () => {
+    const res = await request(app)
+      .get(PREFIX_USERS)
+      .set("Authorization", "Bearer 1234567890");
+
+    const userId = res.body.users[0].id;
+
+    const { status, body } = await request(app)
+      .delete(PREFIX_USERS + "/delete/" + userId)
+      .set("Authorization", "Bearer 1234567890");
+
+    const res2 = await request(app)
+      .get(PREFIX_USERS)
+      .set("Authorization", "Bearer 1234567890");
+
+    expect(status).toBe(200);
+    expect(body.user.id).toBe(userId);
+    expect(res.body.users.length).toBe(6);
+    expect(res2.body.users.length).toBe(5);
   });
 });

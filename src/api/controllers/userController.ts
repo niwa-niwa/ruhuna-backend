@@ -3,6 +3,7 @@ import { verifyToken } from "../../lib/FirebaseAdmin";
 import { Prisma, User } from "@prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { prismaClient } from "../../lib/Prisma";
+import { generateErrorObj } from "../../lib/generateErrorObj";
 import { ErrorObj } from "types/ErrorObj";
 
 export const auth = async (req: Request, res: Response) => {
@@ -35,7 +36,9 @@ export const getUser = async (req: Request, res: Response) => {
   if (user) {
     res.status(200).json({ user });
   } else {
-    res.status(404).json({ message: "該当ユーザーはいません" });
+    res
+      .status(404)
+      .json({ user: generateErrorObj(404, "The User is not Found") });
   }
 };
 
@@ -74,32 +77,38 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const editUser = async (req: Request, res: Response) => {
-  const id: string = req.params.userId;
-  const data: Prisma.UserUpdateInput = req.body;
+  try {
+    const id: string = req.params.userId;
+    const data: Prisma.UserUpdateInput = req.body;
 
-  const editedUser: User = await prismaClient.user.update({
-    where: { id },
-    data,
-  });
+    const editedUser: User = await prismaClient.user.update({
+      where: { id },
+      data,
+    });
 
-  if (editedUser) {
     res.status(200).json({ user: editedUser });
-  } else {
-    res.status(404).json({ message: "該当ユーザーはいません" });
+  } catch (e) {
+    console.error(e);
+    res
+      .status(404)
+      .json({ user: generateErrorObj(404, "The User is not Found") });
   }
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-  const id: string = req.params.userId;
+  try {
+    const id: string = req.params.userId;
 
-  const deletedUser: User = await prismaClient.user.delete({
-    where: { id },
-  });
+    const deletedUser: User = await prismaClient.user.delete({
+      where: { id },
+    });
 
-  if (deletedUser) {
     res.status(200).json({ user: deletedUser });
-  } else {
-    res.status(404).json({ message: "該当ユーザーはいません" });
+  } catch (e) {
+    console.error(e);
+    res
+      .status(404)
+      .json({ user: generateErrorObj(404, "the user is not found") });
   }
 };
 

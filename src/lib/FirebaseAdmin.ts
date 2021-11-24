@@ -1,6 +1,7 @@
 import FirebaseAdmin from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { ErrorObj } from "types/ErrorObj";
+import { generateErrorObj } from "./generateErrorObj";
 
 const serviceAccount: object = Object.freeze({
   type: process.env.FIREBASE_TYPE,
@@ -31,11 +32,6 @@ export async function verifyToken(
     return currentUser;
   } catch (e) {
     console.error(e);
-    return {
-      errorObj: {
-        errorCode: 400,
-        errorMessage: "ID token has invalid signature",
-      },
-    };
+    return generateErrorObj(400, "ID token has invalid signature");
   }
 }
