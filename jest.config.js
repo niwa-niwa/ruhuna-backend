@@ -11,6 +11,9 @@ module.exports = {
       tsconfig: "tsconfig.json",
     },
   },
-  testPathIgnorePatterns: ["/node_modules/", "/__tests__/data/"],
+  globalSetup: "./__tests__/test_config/setup.ts",
+  setupFilesAfterEnv: ["./__tests__/test_config/afterEnv.ts"],
+  globalTeardown: "./__tests__/test_config/teardown.ts",
+  testPathIgnorePatterns: ["/node_modules/", "/__tests__/test_config/"],
   modulePaths: ["/__tests__/", "/src/"],
 };

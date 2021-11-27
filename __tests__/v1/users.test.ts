@@ -1,32 +1,8 @@
-import { prismaClient } from "../../src/lib/Prisma";
 import request from "supertest";
 import app from "../../src/app";
-import { firebase_user } from "../data/testData";
-import { users } from "../../Prisma/seeds/users";
-import { generateErrorObj } from "../../src/lib/generateErrorObj";
+import { firebase_user } from "../test_config/testData";
 
 const PREFIX_USERS = "/api/v1/users";
-
-beforeAll(async () => {
-  await prismaClient.user.createMany({ data: users });
-});
-
-afterAll(async () => {
-  const deleteUsers = prismaClient.user.deleteMany();
-
-  await prismaClient.$transaction([deleteUsers]);
-
-  await prismaClient.$disconnect();
-});
-
-jest.mock("../../src/lib/FirebaseAdmin", () => ({
-  verifyToken: (token: string) => {
-    if (!token) {
-      return generateErrorObj(400, "ID token has invalid signature");
-    }
-    return firebase_user;
-  },
-}));
 
 describe("Test the root path", () => {
   it("It should be 404", async () => {
@@ -246,7 +222,7 @@ describe("/api/v1/users/delete/:userId TEST : deleteUser", () => {
 
     expect(status).toBe(200);
     expect(body.user.id).toBe(userId);
-    expect(res.body.users.length).toBe(6);
-    expect(res2.body.users.length).toBe(5);
+    expect(res.body.users.length).toBe(5);
+    expect(res2.body.users.length).toBe(4);
   });
 });
