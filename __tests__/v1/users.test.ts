@@ -1,4 +1,4 @@
-import { prismaClient } from "./../../src/lib/Prisma";
+import { prismaClient } from "../../src/lib/Prisma";
 import request from "supertest";
 import app from "../../src/app";
 import { firebase_user } from "../data/testData";
