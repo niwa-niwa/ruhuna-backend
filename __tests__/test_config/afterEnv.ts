@@ -12,12 +12,16 @@ beforeEach(async () => {
      * This bight be jest bug.
      * users are deleted after each test but it couldn't insert the users
      */
+  } finally {
+    await prismaClient.$disconnect();
   }
 });
 
 afterEach(async () => {
   const deleteUsers = prismaClient.user.deleteMany();
-  await prismaClient.$transaction([deleteUsers]);
+  const deleteVillages = prismaClient.village.deleteMany();
+  await prismaClient.$transaction([deleteUsers, deleteVillages]);
+  await prismaClient.$disconnect();
 });
 
 jest.mock("../../src/lib/FirebaseAdmin", () => ({

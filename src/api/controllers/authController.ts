@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { CustomRequest } from "types/CustomRequest";
 
 export const auth = async (req: CustomRequest, res: Response) => {

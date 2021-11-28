@@ -12,6 +12,7 @@ export const getUser = async (req: Request, res: Response) => {
   const user: User | null = await prismaClient.user.findUnique({
     where: { id },
   });
+  await prismaClient.$disconnect();
 
   if (user) {
     res.status(200).json({ user });
@@ -24,6 +25,7 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
   const users: User[] = await prismaClient.user.findMany();
+  await prismaClient.$disconnect();
   res.status(200).json({ users: users });
 };
 
@@ -53,6 +55,8 @@ export const createUser = async (req: Request, res: Response) => {
   } catch (e) {
     console.error(e);
     res.status(404).json({ message: "ユーザー作成に失敗しました" });
+  } finally {
+    await prismaClient.$disconnect();
   }
 };
 
@@ -72,6 +76,8 @@ export const editUser = async (req: Request, res: Response) => {
     res
       .status(404)
       .json({ user: generateErrorObj(404, "The User is not Found") });
+  } finally {
+    await prismaClient.$disconnect();
   }
 };
 
@@ -89,6 +95,8 @@ export const deleteUser = async (req: Request, res: Response) => {
     res
       .status(404)
       .json({ user: generateErrorObj(404, "the user is not found") });
+  } finally {
+    await prismaClient.$disconnect();
   }
 };
 

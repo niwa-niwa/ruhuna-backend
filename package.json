@@ -12,7 +12,8 @@
     "reset@dev": "dotenv -e .env.dev -- prisma migrate reset",
     "reset@test": "dotenv -e .env.test -- prisma migrate reset --force --skip-seed",
     "migrate@dev": "dotenv -e .env.dev -- npx prisma migrate dev --name postgres-init",
-    "migrate@test": "dotenv -e .env.test -- npx prisma migrate dev --name postgres-init"
+    "migrate@test": "dotenv -e .env.test -- npx prisma migrate dev --name postgres-init",
+    "migration@test": "dotenv -e .env.test -- prisma migrate dev --create-only"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts",
