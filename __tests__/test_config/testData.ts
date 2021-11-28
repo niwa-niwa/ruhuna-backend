@@ -1,5 +1,13 @@
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 
+export const tokens: {
+  firebase_user: string;
+  auth_user: string;
+} = {
+  firebase_user: "token_firebase_user",
+  auth_user: "token_auth_user",
+};
+
 export const firebase_user: DecodedIdToken = {
   name: "fire user A",
   picture: "https://lh3.googleusercontent.com/a-/A",
