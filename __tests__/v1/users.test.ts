@@ -171,8 +171,6 @@ describe("/api/v1/users/edit/:userId TEST : editUser", () => {
   });
 
   test("should receive errorObj because the user not found", async () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-
     const edit_data = {
       username: "hello world",
       isAdmin: true,

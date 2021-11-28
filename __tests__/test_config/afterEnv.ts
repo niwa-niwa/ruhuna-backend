@@ -27,3 +27,5 @@ jest.mock("../../src/lib/FirebaseAdmin", () => ({
     return firebase_user;
   },
 }));
+
+jest.spyOn(console, "error").mockImplementation(() => {});
