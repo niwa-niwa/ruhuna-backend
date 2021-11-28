@@ -1,0 +1,8 @@
+import { Request, Response } from "express";
+import { CustomRequest } from "types/CustomRequest";
+
+export const auth = async (req: CustomRequest, res: Response) => {
+  res.status(200).json({ currentUser: req.currentUser });
+};
+
+export default { auth };

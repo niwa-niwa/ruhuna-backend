@@ -6,26 +6,6 @@ import { prismaClient } from "../../lib/Prisma";
 import { generateErrorObj } from "../../lib/generateErrorObj";
 import { ErrorObj } from "types/ErrorObj";
 
-export const auth = async (req: Request, res: Response) => {
-  const idToken: string | undefined = req.header("Authorization");
-
-  if (!idToken) {
-    res.status(400).json({ message: "Headers has not token" });
-    return;
-  }
-
-  const currentUser: DecodedIdToken | ErrorObj = await verifyToken(
-    idToken.replace("Bearer ", "")
-  );
-
-  if ("errorObj" in currentUser) {
-    res.status(currentUser.errorObj.errorCode).json(currentUser);
-    return;
-  }
-
-  res.json({ currentUser });
-};
-
 export const getUser = async (req: Request, res: Response) => {
   const id: string = req.params.userId;
 
@@ -113,7 +93,6 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 export default {
-  auth,
   getUsers,
   getUser,
   createUser,

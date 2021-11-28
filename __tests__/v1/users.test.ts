@@ -4,25 +4,11 @@ import { firebase_user } from "../test_config/testData";
 
 const PREFIX_USERS = "/api/v1/users";
 
-describe("Test the root path", () => {
-  it("It should be 404", async () => {
-    const response = await request(app).get("/api");
-    expect(response.status).toBe(404);
-  });
-
-  it("firebase mock", async () => {
-    const response = await request(app)
-      .post("/api/v1/auth")
-      .set("Authorization", "Bearer 1234567890");
-    expect(response.status).toBe(200);
-  });
-});
-
 describe("/api/v1/users/ TEST : getUsers function ", () => {
   test("getUsers has count 5", async () => {
     const response = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(response.status).toBe(200);
     expect(response.body.users.length).not.toBe(3);
@@ -32,7 +18,7 @@ describe("/api/v1/users/ TEST : getUsers function ", () => {
   test("getUsers has properties", async () => {
     const { status, body } = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(status).toBe(200);
     expect(body.users[0]).toHaveProperty("id");
@@ -52,25 +38,23 @@ describe("/api/v1/users/:id TEST : getUser by id function ", () => {
   test("http status should be 200", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
     const user = res.body.users[0];
-
-    const { status } = await request(app)
+    const res2 = await request(app)
       .get(PREFIX_USERS + "/" + user.id)
-      .set("Authorization", "Bearer 1234567890");
-
-    expect(status).toBe(200);
+      .set("Authorization", "Bearer token_firebase_user");
+    expect(res2.status).toBe(200);
   });
 
   test("getUser has properties", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
     const user = res.body.users[0];
 
     const { body } = await request(app)
       .get(PREFIX_USERS + "/" + user.id)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(body.user).toHaveProperty("id");
     expect(body.user).toHaveProperty("firebaseId");
@@ -87,12 +71,12 @@ describe("/api/v1/users/:id TEST : getUser by id function ", () => {
   test("getUser has values", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
     const user = res.body.users[0];
 
     const { status, body } = await request(app)
       .get(PREFIX_USERS + "/" + user.id)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(status).toBe(200);
     expect(user).toMatchObject(body.user);
@@ -102,7 +86,7 @@ describe("/api/v1/users/:id TEST : getUser by id function ", () => {
   test("it should receive error", async () => {
     const { status, body } = await request(app)
       .get(PREFIX_USERS + "/aaaaaaa")
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(status).toBe(404);
     expect(body.user).toHaveProperty("errorObj");
@@ -116,7 +100,7 @@ describe("/api/v1/users/create TEST : createUser function", () => {
   test("http status should be 200 and value", async () => {
     const { status, body } = await request(app)
       .post(PREFIX_USERS + "/create")
-      .send({ firebaseToken: "1234567890" });
+      .send({ firebaseToken: "token_firebase_user" });
 
     expect(status).toBe(200);
     expect(body.user.username).toEqual(firebase_user.name);
@@ -144,7 +128,7 @@ describe("/api/v1/users/edit/:userId TEST : editUser", () => {
   test("edit user by edit_data successfully", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     const userId = res.body.users[0].id;
 
@@ -157,7 +141,7 @@ describe("/api/v1/users/edit/:userId TEST : editUser", () => {
 
     const { status, body } = await request(app)
       .put(PREFIX_USERS + "/edit/" + userId)
-      .set("Authorization", "Bearer 1234567890")
+      .set("Authorization", "Bearer token_firebase_user")
       .send({ ...edit_data });
 
     expect(status).toBe(200);
@@ -180,7 +164,7 @@ describe("/api/v1/users/edit/:userId TEST : editUser", () => {
 
     const { status, body } = await request(app)
       .put(PREFIX_USERS + "/edit/asdf")
-      .set("Authorization", "Bearer 1234567890")
+      .set("Authorization", "Bearer token_firebase_user")
       .send({ ...edit_data });
 
     expect(status).toBe(404);
@@ -194,7 +178,7 @@ describe("/api/v1/users/delete/:userId TEST : deleteUser", () => {
   test("it should receive error", async () => {
     const { status, body } = await request(app)
       .delete(PREFIX_USERS + "/delete/aaaaaa")
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(status).toBe(404);
     expect(body.user).toHaveProperty("errorObj");
@@ -206,17 +190,17 @@ describe("/api/v1/users/delete/:userId TEST : deleteUser", () => {
   test("the user by userId should be deleted", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     const userId = res.body.users[0].id;
 
     const { status, body } = await request(app)
       .delete(PREFIX_USERS + "/delete/" + userId)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     const res2 = await request(app)
       .get(PREFIX_USERS)
-      .set("Authorization", "Bearer 1234567890");
+      .set("Authorization", "Bearer token_firebase_user");
 
     expect(status).toBe(200);
     expect(body.user.id).toBe(userId);
