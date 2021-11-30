@@ -18,7 +18,7 @@ model User {
   isAnonymous Boolean   @default(false)
   username    String    @unique @db.VarChar(64)
   messages    Message[]
-  villages    Village[] @relation(references: [id])
+  villages    UsersOnVillages[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
 
@@ -29,12 +29,23 @@ model Village {
   id          String    @id @unique @default(uuid())
   name        String    @unique @db.VarChar(64)
   description String    @db.VarChar(255)
-  users       User[]    @relation(references: [id])
+  users       UsersOnVillages[]
   messages    Message[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
 
   @@index([id])
+}
+
+model UsersOnVillages {
+  user        User      @relation(fields:[userId], references:[id])
+  userId      String
+  village     Village   @relation(fields: [villageId], references:[id])
+  villageId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  @@id([userId, villageId])
 }
 
 model Message {
