@@ -12,14 +12,8 @@ beforeEach(async () => {
 afterEach(async () => {
   const deleteUsers = prismaClient.user.deleteMany();
   const deleteVillages = prismaClient.village.deleteMany();
-  // const deleteUsersOnVillages = prismaClient.usersOnVillages.deleteMany();
   const deleteMessage = prismaClient.message.deleteMany();
-  await prismaClient.$transaction([
-    deleteUsers,
-    deleteVillages,
-    // deleteUsersOnVillages,
-    deleteMessage,
-  ]);
+  await prismaClient.$transaction([deleteUsers, deleteVillages, deleteMessage]);
   await prismaClient.$disconnect();
 });
 
