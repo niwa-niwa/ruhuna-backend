@@ -4,15 +4,16 @@
   "description": "This is backend app of The Ruhuna.",
   "main": "server.ts",
   "scripts": {
-    "test": "npm run reset@test && dotenv -e .env.test -e .env.dev  -- jest --runInBand --watch",
-    "dev": "dotenv -e .env.dev -- nodemon --watch './src/**/*.ts' --exec ts-node --files ./src/server.ts",
     "build": "tsc",
     "start": "node dist/server.ts",
     "check-types": "tsc --noEmit",
+    "dev": "dotenv -e .env.dev -- nodemon --watch './src/**/*.ts' --exec ts-node --files ./src/server.ts",
+    "test": "npm run reset@test && dotenv -e .env.test -e .env.dev  -- jest --runInBand --watch",
     "reset@dev": "dotenv -e .env.dev -- prisma migrate reset",
     "reset@test": "dotenv -e .env.test -- prisma migrate reset --force --skip-seed",
     "migrate@dev": "dotenv -e .env.dev -- npx prisma migrate dev --name postgres-init",
     "migrate@test": "dotenv -e .env.test -- npx prisma migrate dev --name postgres-init",
+    "migration@dev": "dotenv -e .env.dev -- prisma migrate dev --create-only",
     "migration@test": "dotenv -e .env.test -- prisma migrate dev --create-only"
   },
   "prisma": {
