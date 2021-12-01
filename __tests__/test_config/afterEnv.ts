@@ -5,22 +5,21 @@ import { users } from "../../Prisma/seeds/users";
 import { tokens } from "./testData";
 
 beforeEach(async () => {
-  try {
-    await prismaClient.user.createMany({ data: users });
-  } catch (e) {
-    /**
-     * This bight be jest bug.
-     * users are deleted after each test but it couldn't insert the users
-     */
-  } finally {
-    await prismaClient.$disconnect();
-  }
+  await prismaClient.user.createMany({ data: users });
+  await prismaClient.$disconnect();
 });
 
 afterEach(async () => {
   const deleteUsers = prismaClient.user.deleteMany();
   const deleteVillages = prismaClient.village.deleteMany();
-  await prismaClient.$transaction([deleteUsers, deleteVillages]);
+  // const deleteUsersOnVillages = prismaClient.usersOnVillages.deleteMany();
+  const deleteMessage = prismaClient.message.deleteMany();
+  await prismaClient.$transaction([
+    deleteUsers,
+    deleteVillages,
+    // deleteUsersOnVillages,
+    deleteMessage,
+  ]);
   await prismaClient.$disconnect();
 });
 

@@ -38,9 +38,9 @@ model Village {
 }
 
 model UsersOnVillages {
-  user        User      @relation(fields:[userId], references:[id])
+  user        User      @relation(fields:[userId], references:[id], onDelete: Cascade, onUpdate: Cascade)
   userId      String
-  village     Village   @relation(fields: [villageId], references:[id])
+  village     Village   @relation(fields: [villageId], references:[id], onDelete: Cascade, onUpdate: Cascade)
   villageId   String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
