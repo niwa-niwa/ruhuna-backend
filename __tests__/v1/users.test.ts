@@ -3,7 +3,7 @@ import app from "../../src/app";
 import { firebase_user } from "../test_config/testData";
 import { tokens } from "../test_config/testData";
 
-const PREFIX_USERS = "/api/v1/users";
+export const PREFIX_USERS = "/api/v1/users";
 
 describe("/api/v1/users/ TEST : userController ", () => {
   test("GET /api/v1/users/ TEST :getUsers has count 5", async () => {

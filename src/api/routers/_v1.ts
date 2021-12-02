@@ -22,7 +22,13 @@ v1.use(
 v1.use(
   "/villages",
   validateToken,
-  express.Router().post("/create", villageController.createVillage)
+  express
+    .Router()
+    .get("/", villageController.getVillages)
+    .get("/:villageId", villageController.getVillageDetail)
+    .post("/create", villageController.createVillage)
+    .put("/edit/:villageId", villageController.editVillage)
+    .delete("/delete/:villageId", villageController.deleteVillage)
 );
 
 export { v1 };
