@@ -56,7 +56,7 @@ describe("/api/v1/users/ TEST : userController ", () => {
     expect(body.user).not.toHaveProperty("password");
   });
 
-  test("GET /api/v1/users/:userId TEST : getUser has values", async () => {
+  test("GET /api/v1/users/:userId TEST : getUserDetail has values", async () => {
     const res = await request(app)
       .get(PREFIX_USERS)
       .set("Authorization", `Bearer ${tokens.firebase_user}`);
@@ -77,10 +77,9 @@ describe("/api/v1/users/ TEST : userController ", () => {
       .set("Authorization", `Bearer ${tokens.firebase_user}`);
 
     expect(status).toBe(404);
-    expect(body.user).toHaveProperty("errorObj");
-    expect(body.user.errorObj.errorCode).toBe(404);
-    expect(body.user.errorObj).toHaveProperty("errorMessage");
-    expect(body.user).not.toHaveProperty("id");
+    expect(body.user).toBeNull();
+    expect(body.errorObj.errorCode).toBe(404);
+    expect(body.errorObj).toHaveProperty("errorMessage");
   });
 
   test("POST /api/v1/users/create TEST : http status should be 200 and create a user ", async () => {
@@ -103,10 +102,9 @@ describe("/api/v1/users/ TEST : userController ", () => {
     const { status, body } = await request(app).post(PREFIX_USERS + "/create");
 
     expect(status).toBe(400);
-    expect(body.user).toHaveProperty("errorObj");
-    expect(body.user.errorObj).toHaveProperty("errorCode");
-    expect(body.user.errorObj).toHaveProperty("errorMessage");
-    expect(body.user).not.toHaveProperty("id");
+    expect(body.user).toBeNull();
+    expect(body.errorObj.errorCode).toBe(400);
+    expect(body.errorObj).toHaveProperty("errorMessage");
   });
 
   test("PUT /api/v1/users/:userId TEST : edit user by edit_data successfully", async () => {
@@ -152,9 +150,9 @@ describe("/api/v1/users/ TEST : userController ", () => {
       .send({ ...edit_data });
 
     expect(status).toBe(404);
-    expect(body.user.errorObj).toHaveProperty("errorCode");
-    expect(body.user.errorObj).toHaveProperty("errorMessage");
-    expect(body.user).not.toHaveProperty("id");
+    expect(body.user).toBeNull();
+    expect(body.errorObj.errorCode).toBe(404);
+    expect(body.errorObj).toHaveProperty("errorMessage");
   });
 
   test("DELETE /api/v1/users/:userId TEST it should receive error", async () => {
@@ -163,9 +161,9 @@ describe("/api/v1/users/ TEST : userController ", () => {
       .set("Authorization", `Bearer ${tokens.firebase_user}`);
 
     expect(status).toBe(404);
-    expect(body.user).toHaveProperty("errorObj");
-    expect(body.user.errorObj.errorCode).toBe(404);
-    expect(body.user.errorObj).toHaveProperty("errorMessage");
+    expect(body.user).toBeNull();
+    expect(body.errorObj.errorCode).toBe(404);
+    expect(body.errorObj).toHaveProperty("errorMessage");
     expect(body.user).not.toBe("id");
   });
 

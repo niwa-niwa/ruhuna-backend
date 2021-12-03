@@ -18,18 +18,23 @@ describe("TEST Middleware verifyAccessToken", () => {
     expect(res.body.currentUser).toHaveProperty("isAnonymous");
     expect(res.body.currentUser).not.toHaveProperty("password");
   });
-  test("it should be fail", async () => {
+
+  test("it should be fail by firebase API", async () => {
     const res = await request(app).get("/api/v1/auth");
 
     expect(res.status).toBe(400);
-    expect(res.body).not.toHaveProperty("currentUser");
+    expect(res.body.errorObj.errorCode).toBe(400);
+    expect(res.body.errorObj).toHaveProperty("errorMessage");
   });
-  test("it should be fail", async () => {
+
+  test("it should be fail by Prisma API", async () => {
     const res = await request(app)
       .get("/api/v1/auth")
       .set("Authorization", "Bearer 123450");
 
     expect(res.status).toBe(400);
-    expect(res.body).not.toHaveProperty("currentUser");
+    expect(res.body.currentUser).toBeNull();
+    expect(res.body.errorObj.errorCode).toBe(400);
+    expect(res.body.errorObj).toHaveProperty("errorMessage");
   });
 });

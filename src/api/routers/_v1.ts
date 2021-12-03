@@ -13,7 +13,7 @@ v1.use(
   express
     .Router()
     .get("/", userController.getUsers)
-    .get("/:userId", userController.getUser)
+    .get("/:userId", userController.getUserDetail)
     .post("/create", userController.createUser)
     .put("/edit/:userId", userController.editUser)
     .delete("/delete/:userId", userController.deleteUser)

@@ -5,9 +5,7 @@ export function generateErrorObj(
   errorMessage: String
 ): ErrorObj {
   return {
-    errorObj: {
-      errorCode,
-      errorMessage,
-    },
+    errorCode,
+    errorMessage,
   };
 }

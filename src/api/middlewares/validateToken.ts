@@ -15,7 +15,10 @@ export const validateToken = async (
   const idToken: string | undefined = req.header("Authorization");
 
   if (!idToken) {
-    res.status(400).json({ message: "Headers has not token" });
+    // if headers didn't have a idToken, it response error
+    res
+      .status(400)
+      .json({ errorObj: generateErrorObj(400, "Headers has not token") });
     return;
   }
 
@@ -23,8 +26,11 @@ export const validateToken = async (
     idToken.replace("Bearer ", "")
   );
 
-  if ("errorObj" in firebaseUser) {
-    res.status(firebaseUser.errorObj.errorCode).json(firebaseUser);
+  if ("errorCode" in firebaseUser) {
+    // if firebase API didn't response a user, it would response error.  firebaseUser has an errorObj
+    res
+      .status(firebaseUser.errorCode)
+      .json({ currentUser: null, errorObj: firebaseUser });
     return;
   }
 
@@ -33,9 +39,11 @@ export const validateToken = async (
   });
 
   if (!currentUser) {
-    res
-      .status(404)
-      .json(generateErrorObj(404, "The user by token is not found"));
+    // if it couldn't find a user who has the firebaseId, it would response error
+    res.status(404).json({
+      currentUser: null,
+      errorObj: generateErrorObj(404, "The user by token is not found"),
+    });
     return;
   }
 

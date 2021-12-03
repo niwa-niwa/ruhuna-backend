@@ -21,9 +21,10 @@ export const getVillageDetail = async (req: CustomRequest, res: Response) => {
   });
 
   if (village === null) {
-    const errorObj = generateErrorObj(400, "couldn't find the village");
-
-    res.status(404).json({ village, ...errorObj });
+    res.status(404).json({
+      village: null,
+      errorObj: generateErrorObj(400, "couldn't find the village"),
+    });
 
     return;
   }
@@ -53,11 +54,9 @@ export const createVillage = async (req: CustomRequest, res: Response) => {
   } catch (e) {
     console.error(e);
 
-    const errorObj = generateErrorObj(400, "couldn't create a village");
-
     res.status(400).json({
       village: null,
-      ...errorObj,
+      errorObj: generateErrorObj(400, "couldn't create a village"),
     });
   }
 };
@@ -77,11 +76,9 @@ export const editVillage = async (req: CustomRequest, res: Response) => {
   } catch (e) {
     console.error(e);
 
-    const errorObj = generateErrorObj(400, "couldn't edit a village");
-
     res.status(400).json({
       village: null,
-      ...errorObj,
+      errorObj: generateErrorObj(400, "couldn't edit a village"),
     });
   }
 };
@@ -98,11 +95,9 @@ export const deleteVillage = async (req: CustomRequest, res: Response) => {
   } catch (e) {
     console.error(e);
 
-    const errorObj = generateErrorObj(400, "couldn't delete a village");
-
     res.status(400).json({
       village: null,
-      ...errorObj,
+      errorObj: generateErrorObj(400, "couldn't delete a village"),
     });
   }
 };
