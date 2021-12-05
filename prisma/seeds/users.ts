@@ -20,3 +20,26 @@ export const users = [
     username: "User_E",
   },
 ];
+
+export const villages = [
+  {
+    name: "village_test_A",
+    description: "desc_village_test_A",
+  },
+  {
+    name: "village_test_B",
+    description: "desc_village_test_B",
+  },
+  {
+    name: "village_test_C",
+    description: "desc_village_test_C",
+  },
+  {
+    name: "village_test_D",
+    description: "desc_village_test_D",
+  },
+  {
+    name: "village_test_E",
+    description: "desc_village_test_E",
+  },
+];

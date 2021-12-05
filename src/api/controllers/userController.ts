@@ -6,27 +6,7 @@ import { prismaClient } from "../../lib/Prisma";
 import { generateErrorObj } from "../../lib/generateErrorObj";
 import { ErrorObj } from "types/ErrorObj";
 
-export const auth = async (req: Request, res: Response) => {
-  const idToken: string | undefined = req.header("Authorization");
-
-  if (!idToken) {
-    res.status(400).json({ message: "Headers has not token" });
-    return;
-  }
-
-  const currentUser: DecodedIdToken | ErrorObj = await verifyToken(
-    idToken.replace("Bearer ", "")
-  );
-
-  if ("errorObj" in currentUser) {
-    res.status(currentUser.errorObj.errorCode).json(currentUser);
-    return;
-  }
-
-  res.json({ currentUser });
-};
-
-export const getUser = async (req: Request, res: Response) => {
+export const getUserDetail = async (req: Request, res: Response) => {
   const id: string = req.params.userId;
 
   const user: User | null = await prismaClient.user.findUnique({
@@ -36,9 +16,10 @@ export const getUser = async (req: Request, res: Response) => {
   if (user) {
     res.status(200).json({ user });
   } else {
-    res
-      .status(404)
-      .json({ user: generateErrorObj(404, "The User is not Found") });
+    res.status(404).json({
+      user: null,
+      errorObj: generateErrorObj(404, "The User is not Found"),
+    });
   }
 };
 
@@ -55,8 +36,12 @@ export const createUser = async (req: Request, res: Response) => {
       firebaseToken
     );
 
-    if ("errorObj" in currentUser) {
-      res.status(currentUser.errorObj.errorCode).json({ user: currentUser });
+    if ("errorCode" in currentUser) {
+      // if the token were not authorized, it response error
+      res.status(currentUser.errorCode).json({
+        user: null,
+        errorObj: currentUser,
+      });
       return;
     }
 
@@ -72,7 +57,10 @@ export const createUser = async (req: Request, res: Response) => {
     }
   } catch (e) {
     console.error(e);
-    res.status(404).json({ message: "ユーザー作成に失敗しました" });
+
+    res
+      .status(404)
+      .json({ errorObj: generateErrorObj(404, "Couldn't create a user") });
   }
 };
 
@@ -89,9 +77,11 @@ export const editUser = async (req: Request, res: Response) => {
     res.status(200).json({ user: editedUser });
   } catch (e) {
     console.error(e);
-    res
-      .status(404)
-      .json({ user: generateErrorObj(404, "The User is not Found") });
+
+    res.status(404).json({
+      user: null,
+      errorObj: generateErrorObj(404, "The User is not Found"),
+    });
   }
 };
 
@@ -106,16 +96,16 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(200).json({ user: deletedUser });
   } catch (e) {
     console.error(e);
-    res
-      .status(404)
-      .json({ user: generateErrorObj(404, "the user is not found") });
+    res.status(404).json({
+      user: null,
+      errorObj: generateErrorObj(404, "the user is not found"),
+    });
   }
 };
 
 export default {
-  auth,
   getUsers,
-  getUser,
+  getUserDetail,
   createUser,
   editUser,
   deleteUser,

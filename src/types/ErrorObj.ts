@@ -1,6 +1,4 @@
 export type ErrorObj = {
-  errorObj: {
-    errorCode: number;
-    errorMessage: String;
-  };
+  errorCode: number;
+  errorMessage: String;
 };

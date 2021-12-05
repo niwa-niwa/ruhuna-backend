@@ -29,9 +29,11 @@ export async function verifyToken(
 ): Promise<DecodedIdToken | ErrorObj> {
   try {
     const currentUser: DecodedIdToken = await FirebaseAuth.verifyIdToken(token);
+
     return currentUser;
   } catch (e) {
     console.error(e);
+
     return generateErrorObj(400, "ID token has invalid signature");
   }
 }
