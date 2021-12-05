@@ -1,8 +1,9 @@
 import express, { Router } from "express";
+import { validateToken } from "../middlewares/validateToken";
 import authController from "../controllers/authController";
 import userController from "../controllers/userController";
 import villageController from "../controllers/villageController";
-import { validateToken } from "../middlewares/validateToken";
+import messageController from "../controllers/messageController";
 
 const v1: Router = express.Router();
 
@@ -29,6 +30,18 @@ v1.use(
     .post("/create", villageController.createVillage)
     .put("/edit/:villageId", villageController.editVillage)
     .delete("/delete/:villageId", villageController.deleteVillage)
+);
+
+v1.use(
+  "/messages",
+  validateToken,
+  express
+    .Router()
+    .get("/", messageController.getMessages)
+    .get("/:messageId", messageController.getMessageDetail)
+    .post("/create", messageController.createMessage)
+    .put("/edit/:messageId", messageController.editMessage)
+    .delete("/delete/:messageId", messageController.deleteMessage)
 );
 
 export { v1 };
